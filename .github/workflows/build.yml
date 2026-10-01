@@ -53,3 +53,10 @@ jobs:
           curl -fsS "${{ steps.deploy.outputs.page_url }}sobre.html" | grep -q 'Como funciona'
       - run: node indexnow.js
         continue-on-error: true
+      - name: E-mail alerts for new bills
+        run: node alert.js bills
+        env:
+          ALERTS_URL: ${{ secrets.ALERTS_URL }}
+          ALERTS_KEY: ${{ secrets.ALERTS_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

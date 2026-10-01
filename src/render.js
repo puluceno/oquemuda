@@ -47,7 +47,21 @@ ins{background:#abf2bc;color:var(--addf);text-decoration:none}del{background:#ff
 .skip{padding:4px 12px;color:var(--mut);font-size:.85rem;background:#fafbfc;border-top:1px solid #f0f2f4}
 .warn{background:#fff8c5;border:1px solid #eedc82;border-radius:8px;padding:8px 12px;font-size:.9rem}
 footer{color:var(--mut);font-size:.85rem;border-top:1px solid var(--line);margin-top:40px;padding:16px 0}
-table{border-collapse:collapse;width:100%}td{padding:4px 6px;border-bottom:1px solid var(--line)}td.n{text-align:right;font-variant-numeric:tabular-nums}`;
+table{border-collapse:collapse;width:100%}td{padding:4px 6px;border-bottom:1px solid var(--line)}td.n{text-align:right;font-variant-numeric:tabular-nums}
+.alert{background:#f1f6fd;border:1px solid #cfe0f5;border-radius:8px;padding:12px 14px;margin:14px 0}.alert b{display:block;margin-bottom:6px}
+.alert form{display:flex;gap:8px;flex-wrap:wrap}.alert input[type=email]{flex:1;min-width:200px;padding:8px;border:1px solid #b9c7d6;border-radius:6px;font:inherit}
+.alert button{padding:8px 14px;border:0;border-radius:6px;background:var(--acc);color:#fff;font:inherit;cursor:pointer}.hp{position:absolute;left:-9999px}`;
+
+export const ALERTS = 'https://oquemuda-alertas.agentready.workers.dev';
+
+/** E-mail alert sign-up for one law (posts to the alerts Worker). */
+export function alertForm(law, root) {
+  return `<div class="alert"><b>Receba um e-mail quando um novo projeto mudar a ${esc(law.nick || lawTitle(law))}</b>
+<form method="post" action="${ALERTS}/assinar"><input type="hidden" name="lei" value="${esc(law.key)}">
+<input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+<input type="email" name="email" required placeholder="seu@email.com" aria-label="Seu e-mail"><button>Receber alertas</button></form>
+<div class="mut">Grátis para até 3 leis. Confirmação por e-mail; sair é um clique. <a href="${root}privacidade.html">Privacidade</a> · <a href="${root}pro.html">Plano Pro</a></div></div>`;
+}
 
 export function page({ title, desc, root, body }) {
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -93,7 +107,8 @@ export function billPage(b, laws) {
 ${b.changes.length ? '' : '<p class="warn">Não conseguimos identificar automaticamente as alterações deste projeto. Leia o texto oficial.</p>'}
 ${byLaw.map(({ l, cs }) => `<h2>${esc(lawName(laws[l.key] || l))}</h2>
 ${laws[l.key]?.url ? `<p class="mut"><a href="${href(laws[l.key].url)}">Texto atual no Planalto</a> · <a href="../lei/${l.key}.html">outros projetos que mudam esta lei</a></p>` : '<p class="warn">Não encontramos o texto atual desta lei no Planalto; mostramos só o texto proposto.</p>'}
-${cs.map(c => articleHtml(c, l)).join('')}`).join('')}
+${cs.map(c => articleHtml(c, l)).join('')}
+${alertForm(laws[l.key] || l, '../')}`).join('')}
 ${b.revocations.length ? `<h2>Revogações</h2>${b.revocations.map(r => `<p>${esc(r)}</p>`).join('')}` : ''}`;
   return page({ title: `${billTitle(b)}: o que muda na lei`, desc: b.ementa, root: '../', body });
 }
@@ -109,6 +124,7 @@ export function indexPage(bills, laws, top) {
 <p>Todo projeto que altera uma lei federal, comparado automaticamente com o texto em vigor. <del>Riscado</del> sai, <ins>verde</ins> entra.</p>
 <p class="mut">${fmtNum(bills.length)} projetos comparados · atualizado em ${esc(date(new Date().toISOString()))}</p>
 <h2>Leis com mais propostas de mudança</h2><table>${top.map(([k, n]) => `<tr><td><a href="lei/${k}.html">${esc(lawName(laws[k]))}</a></td><td class="n">${n}</td></tr>`).join('')}</table>
+<p class="alert"><b>Alertas por e-mail</b>Abra a página de uma lei e receba um e-mail no dia em que um novo projeto tentar mudá-la. Grátis para até 3 leis. Para equipes jurídicas e de compliance: <a href="pro.html">plano Pro</a>.</p>
 <h2>Projetos mais recentes</h2>${bills.slice(0, 150).map(b => billCard(b, '', laws)).join('')}`;
   return page({ title: 'O que muda: cada projeto de lei comparado com a lei atual', desc: 'Veja exatamente o que cada projeto de lei apresentado na Câmara muda no texto da lei em vigor.', root: '', body });
 }
@@ -116,6 +132,7 @@ export function indexPage(bills, laws, top) {
 export function lawPage(law, bills, laws) {
   const body = `<h1>${esc(lawName(law))}</h1>
 <p>${bills.length} ${bills.length === 1 ? 'projeto quer' : 'projetos querem'} mudar esta lei.${law.url ? ` <a href="${href(law.url)}">Texto atual no Planalto</a>.` : ''}</p>
+${alertForm(law, '../')}
 ${bills.map(b => billCard(b, '../', laws)).join('')}`;
   return page({ title: `Projetos que mudam a ${lawName(law)}`, desc: `${bills.length} projetos de lei propõem mudanças na ${lawName(law)}. Veja o que cada um muda.`, root: '../', body });
 }
@@ -127,6 +144,30 @@ export function aboutPage() {
 <p>A comparação é automática e pode errar, principalmente quando o PDF do projeto tem formatação incomum. Sempre confira o texto oficial antes de usar.</p>
 <p>O código é aberto: <a href="https://github.com/puluceno/oquemuda">github.com/puluceno/oquemuda</a>. Contato: agentready.team@gmail.com</p>`;
   return page({ title: 'Como funciona · O que muda', desc: 'Como comparamos projetos de lei com o texto da lei em vigor.', root: '', body });
+}
+
+export function proPage() {
+  const body = `<h1>Plano Pro</h1>
+<p>Para escritórios de advocacia, equipes de compliance, associações e relações governamentais.</p>
+<ul><li>Alertas para <b>leis ilimitadas</b>, no mesmo dia em que o projeto é apresentado</li>
+<li><b>Resumo semanal por tema</b> (saúde, tributário, telecom, penal, trabalhista…)</li>
+<li>Exportação das comparações em CSV e acesso por API</li></ul>
+<p><b>R$ 49/mês</b> por usuário. Sem contrato, cancele quando quiser.</p>
+<div class="alert"><b>Entre na lista de espera</b><form method="post" action="${ALERTS}/pro">
+<input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+<input type="email" name="email" required placeholder="seu@email.com" aria-label="Seu e-mail"><button>Quero o Pro</button></form>
+<div class="mut">Avisaremos quando abrir. <a href="privacidade.html">Privacidade</a></div></div>
+<p>O plano gratuito continua: todas as comparações no site e alertas para até 3 leis.</p>`;
+  return page({ title: 'Plano Pro · O que muda', desc: 'Alertas ilimitados de projetos de lei que mudam as leis do seu setor.', root: '', body });
+}
+
+export function privacyPage() {
+  const body = `<h1>Privacidade</h1>
+<p>Para enviar alertas, guardamos apenas: seu e-mail, as leis que você escolheu e a data do cadastro. Usamos esses dados só para enviar os alertas que você pediu. Não vendemos nem compartilhamos com ninguém.</p>
+<p>Os dados ficam em um banco de dados na Cloudflare, e os e-mails são enviados pelo Gmail. Para registrar tentativas de abuso, guardamos por uma hora um código irreversível (hash) do seu endereço IP.</p>
+<p>Todo e-mail tem um link “Parar de receber”: ao clicar, apagamos o seu e-mail e todas as suas inscrições. Você também pode pedir a exclusão ou uma cópia dos seus dados (LGPD) em agentready.team@gmail.com.</p>
+<p>O site não usa cookies nem ferramentas de rastreamento.</p>`;
+  return page({ title: 'Privacidade · O que muda', desc: 'Quais dados guardamos para enviar alertas e como apagá-los.', root: '', body });
 }
 
 export function feed(bills, base) {

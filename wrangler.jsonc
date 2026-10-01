@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "oquemuda-alertas",
+  "main": "worker/alertas.js",
+  "compatibility_date": "2026-09-30",
+  "observability": { "enabled": true },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "oquemuda", "database_id": "06d9190d-3cd7-48ae-9730-2a751bb4ff61" }
+  ]
+}

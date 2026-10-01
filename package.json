@@ -5,7 +5,7 @@
   "description": "Cada projeto de lei da Câmara comparado, palavra por palavra, com a lei em vigor.",
   "scripts": {
     "build": "node build.js",
-    "test": "node --test test/parse.test.js",
+    "test": "node --test test/parse.test.js test/alerts.test.js",
     "stats": "node test/stats.mjs"
   },
   "engines": { "node": ">=22" }

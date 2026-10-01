@@ -2,7 +2,7 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, existsSync, rmSync, cpSync } from 'node:fs';
 import { listBills, billDetail, pdfText, lawHtml } from './src/sources.js';
 import { parseBill, parseLaw, compare } from './src/parse.js';
-import { billPage, indexPage, lawPage, aboutPage, feed, NICKS } from './src/render.js';
+import { billPage, indexPage, lawPage, aboutPage, proPage, privacyPage, feed, NICKS, lawName, billTitle } from './src/render.js';
 
 const DAYS = +(process.env.DAYS || 3);
 const BASE = process.env.BASE_URL || 'https://puluceno.github.io/oquemuda/';
@@ -50,7 +50,7 @@ if (process.env.REPARSE) for (const f of readdirSync('data/bills')) {
   if (!list.some(p => p.id === old.id)) list.push(old);
 }
 let added = 0, failed = 0;
-const newUrls = [];
+const newUrls = [], newBills = [];
 for (const p of list) {
   const f = `data/bills/${p.id}.json`;
   if (existsSync(f) && !process.env.REPARSE) continue;
@@ -58,7 +58,10 @@ for (const p of list) {
     const rec = await processBill(p);
     if (rec) {
       writeFileSync(f, JSON.stringify(rec)); added++;
-      if (rec.changes.length) newUrls.push(`pl/${rec.id}.html`, ...rec.laws.map(l => `lei/${l.key}.html`));
+      if (rec.changes.length) {
+        newUrls.push(`pl/${rec.id}.html`, ...rec.laws.map(l => `lei/${l.key}.html`));
+        newBills.push(rec);
+      }
     }
   } catch (e) {
     failed++;
@@ -85,10 +88,17 @@ for (const b of bills) writeFileSync(`site/pl/${b.id}.html`, billPage(b, laws));
 for (const k of Object.keys(laws)) writeFileSync(`site/lei/${k}.html`, lawPage(laws[k], bills.filter(b => b.laws.some(l => l.key === k)), laws));
 writeFileSync('site/index.html', indexPage(bills.filter(b => b.changes.length), laws, top));
 writeFileSync('site/sobre.html', aboutPage());
+writeFileSync('site/pro.html', proPage());
+writeFileSync('site/privacidade.html', privacyPage());
+writeFileSync('site/leis.json', JSON.stringify(Object.fromEntries(Object.entries(laws).map(([k, l]) => [k, lawName(l)]))));
 writeFileSync('site/feed.xml', feed(bills.filter(b => b.changes.length), BASE));
 writeFileSync('site/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${BASE}sitemap.xml\n`);
 writeFileSync('site/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${['', 'sobre.html', ...bills.map(b => `pl/${b.id}.html`), ...Object.keys(laws).map(k => `lei/${k}.html`)].map(u => `<url><loc>${BASE}${u}</loc></url>`).join('')}</urlset>`);
 if (existsSync('static')) cpSync('static', 'site', { recursive: true });
 writeFileSync('.cache/new-urls.json', JSON.stringify(process.env.REPARSE ? [] : [...new Set(['', ...newUrls])].map(u => BASE + u)));
+writeFileSync('.cache/new-bills.json', JSON.stringify(process.env.REPARSE ? [] : newBills.map(b => ({
+  id: b.id, title: billTitle(b), ementa: b.ementa,
+  laws: b.laws.filter(l => b.changes.some(c => c.law === l.key)).map(l => ({ key: l.key, name: lawName(laws[l.key] || l) })),
+})))); 
 console.log(`site: ${bills.length} bills, ${Object.keys(laws).length} laws`);
 if (failed > list.length / 2 && list.length > 4) process.exit(1);
