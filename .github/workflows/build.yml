@@ -1,0 +1,53 @@
+name: build
+on:
+  schedule:
+    - cron: '17 10,22 * * *'  # 07:17 and 19:17 in Brasília
+  workflow_dispatch:
+    inputs:
+      days: { description: 'Days of bills to fetch', default: '3' }
+      reparse: { description: 'Recompute every stored bill (1 = yes)', default: '' }
+  push:
+    branches: [main]
+    paths-ignore: ['data/**']
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency: { group: build, cancel-in-progress: false }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: sudo apt-get install -y --no-install-recommends poppler-utils
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: cache-${{ github.run_id }}
+          restore-keys: cache-
+      - run: npm test
+      - run: node build.js
+        env:
+          DAYS: ${{ inputs.days || '3' }}
+          REPARSE: ${{ inputs.reparse }}
+      - name: Commit new bills
+        run: |
+          git config user.name 'oquemuda-bot'
+          git config user.email 'agentready.team@gmail.com'
+          git add data
+          git diff --cached --quiet || (git commit -q -m "dados: $(date -u +%F)" && git push)
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+      - id: deploy
+        uses: actions/deploy-pages@v4
+      - name: Verify the live site
+        run: |
+          sleep 20
+          curl -fsS "${{ steps.deploy.outputs.page_url }}" | grep -q 'O que muda'
+          curl -fsS "${{ steps.deploy.outputs.page_url }}sobre.html" | grep -q 'Como funciona'

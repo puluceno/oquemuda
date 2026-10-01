@@ -1,0 +1,12 @@
+{
+  "name": "oquemuda",
+  "private": true,
+  "type": "module",
+  "description": "Cada projeto de lei da Câmara comparado, palavra por palavra, com a lei em vigor.",
+  "scripts": {
+    "build": "node build.js",
+    "test": "node --test test/parse.test.js",
+    "stats": "node test/stats.mjs"
+  },
+  "engines": { "node": ">=22" }
+}
