@@ -4,7 +4,7 @@ const urls = JSON.parse(readFileSync('.cache/new-urls.json', 'utf8'));
 if (urls.length < 2) { console.log('indexnow: nothing new'); process.exit(0); }
 const key = readdirSync('static').find(f => /^[0-9a-f]{32}\.txt$/.test(f)).slice(0, -4);
 const { host, pathname } = new URL(urls[0]);
-const r = await fetch('https://api.indexnow.org/indexnow', {
+const r = await fetch('https://www.bing.com/indexnow', {
   method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' },
   body: JSON.stringify({ host, key, keyLocation: `https://${host}${pathname}${key}.txt`, urlList: urls.slice(0, 10000) }),
 });
