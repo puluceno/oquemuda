@@ -117,3 +117,12 @@ test('SMTP client speaks the protocol and sends UTF-8 subject + unsubscribe head
   const body = Buffer.from(got.filter(l => /^[A-Za-z0-9+/=]+$/.test(l) && l.length > 20).join(''), 'base64').toString();
   assert.ok(body.includes(`${W}/confirmar?t=tok`));
 });
+
+test('Portuguese article agrees with the law name', async () => {
+  const { art } = await import('../src/render.js');
+  assert.equal(art('Código Penal (Decreto-Lei nº 2.848/1940)'), 'o');
+  assert.equal(art('Lei Maria da Penha (Lei nº 11.340/2006)', 'em'), 'na');
+  assert.equal(art('Estatuto da Criança e do Adolescente', 'em'), 'no');
+  const m = confirmMail({ token: 't', law: 'del-2848-1940' }, W, { 'del-2848-1940': 'Código Penal (Decreto-Lei nº 2.848/1940)' });
+  assert.match(m.text, /mudar o Código Penal/);
+});

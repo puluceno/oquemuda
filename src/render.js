@@ -28,6 +28,11 @@ export const NICKS = {
   'lei-14457-2022': 'Programa Emprega + Mulheres', 'lei-11101-2005': 'Lei de Falências', 'lei-6404-1976': 'Lei das Sociedades Anônimas',
 };
 export const lawTitle = (l) => `${KIND[l.kind]} nº ${fmtNum(l.num)}/${l.year}`;
+// Portuguese article for a law name: "o Código Penal" but "a Lei Maria da Penha"; prep 'em' -> no/na, 'de' -> do/da
+export const art = (name, prep = '') => {
+  const m = /^(Código|Estatuto|Marco|Programa|Decreto|Sistema|Fundo)\b/.test(name);
+  return { '': m ? 'o' : 'a', em: m ? 'no' : 'na', de: m ? 'do' : 'da' }[prep];
+};
 export const lawName = (l) => l.nick ? `${l.nick} (${lawTitle(l)})` : lawTitle(l);
 const date = iso => iso ? new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '';
 export const billTitle = b => `${b.siglaTipo} ${b.numero}/${b.ano}`;
@@ -56,7 +61,8 @@ export const ALERTS = 'https://oquemuda-alertas.agentready.workers.dev';
 
 /** E-mail alert sign-up for one law (posts to the alerts Worker). */
 export function alertForm(law, root) {
-  return `<div class="alert"><b>Receba um e-mail quando um novo projeto mudar a ${esc(law.nick || lawTitle(law))}</b>
+  const name = law.nick || lawTitle(law);
+  return `<div class="alert"><b>Receba um e-mail quando um novo projeto mudar ${art(name)} ${esc(name)}</b>
 <form method="post" action="${ALERTS}/assinar"><input type="hidden" name="lei" value="${esc(law.key)}">
 <input class="hp" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
 <input type="email" name="email" required placeholder="seu@email.com" aria-label="Seu e-mail"><button>Receber alertas</button></form>
@@ -134,7 +140,7 @@ export function lawPage(law, bills, laws) {
 <p>${bills.length} ${bills.length === 1 ? 'projeto quer' : 'projetos querem'} mudar esta lei.${law.url ? ` <a href="${href(law.url)}">Texto atual no Planalto</a>.` : ''}</p>
 ${alertForm(law, '../')}
 ${bills.map(b => billCard(b, '../', laws)).join('')}`;
-  return page({ title: `Projetos que mudam a ${lawName(law)}`, desc: `${bills.length} projetos de lei propõem mudanças na ${lawName(law)}. Veja o que cada um muda.`, root: '../', body });
+  return page({ title: `Projetos que mudam ${art(lawName(law))} ${lawName(law)}`, desc: `${bills.length} projetos de lei propõem mudanças ${art(lawName(law), 'em')} ${lawName(law)}. Veja o que cada um muda.`, root: '../', body });
 }
 
 export function aboutPage() {

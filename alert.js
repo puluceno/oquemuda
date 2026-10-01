@@ -4,6 +4,7 @@
 import tls from 'node:tls';
 import net from 'node:net';
 import { readFileSync, existsSync } from 'node:fs';
+import { art } from './src/render.js';
 
 const SITE = 'https://puluceno.github.io/oquemuda/';
 const b64 = s => Buffer.from(s, 'utf8').toString('base64');
@@ -67,8 +68,8 @@ export function confirmMail(row, api, names) {
   const law = lawLabel(row.law, names);
   return {
     subject: `Confirme o alerta: ${law}`, unsubscribe: `${api}/sair?t=${row.token}`,
-    text: `Confirme para receber um e-mail quando um novo projeto de lei mudar a ${law}:\n${link}\n\nSe não foi você, ignore este e-mail.`,
-    html: shell(`<p>Confirme para receber um e-mail quando um novo projeto de lei mudar a <b>${esc(law)}</b>:</p><p><a href="${esc(link)}">Confirmar alerta</a></p><p>Se não foi você, ignore este e-mail.</p>`),
+    text: `Confirme para receber um e-mail quando um novo projeto de lei mudar ${art(law)} ${law}:\n${link}\n\nSe não foi você, ignore este e-mail.`,
+    html: shell(`<p>Confirme para receber um e-mail quando um novo projeto de lei mudar ${art(law)} <b>${esc(law)}</b>:</p><p><a href="${esc(link)}">Confirmar alerta</a></p><p>Se não foi você, ignore este e-mail.</p>`),
   };
 }
 
@@ -88,7 +89,7 @@ export function billMails(rows, bills, api) {
     const lines = hits.map(b => ({ b, url: `${SITE}pl/${b.id}.html`, which: b.laws.filter(l => laws.has(l.key)).map(l => l.name).join(', ') }));
     out.push({
       to: email, unsubscribe: unsub,
-      subject: hits.length === 1 ? `${hits[0].title} quer mudar a ${lines[0].which}` : `${hits.length} novos projetos mudam leis que você acompanha`,
+      subject: hits.length === 1 ? `${hits[0].title} quer mudar ${art(lines[0].which)} ${lines[0].which}` : `${hits.length} novos projetos mudam leis que você acompanha`,
       text: lines.map(({ b, url, which }) => `${b.title} (${which})\n${b.ementa}\nVeja o que muda: ${url}`).join('\n\n') + `\n\nParar de receber: ${unsub}`,
       html: shell(lines.map(({ b, url, which }) => `<p><b><a href="${esc(url)}">${esc(b.title)}</a></b> · ${esc(which)}<br>${esc(b.ementa)}</p>`).join(''), unsub),
     });
