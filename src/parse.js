@@ -175,7 +175,9 @@ export function parseLaw(html) {
     .replace(/<\/?(p|br|div|tr|h\d)\b[^>]*>/gi, '\n')
     .replace(/<[^>]+>/g, '')
     .replace(/&(#\d+|#x[\da-f]+|\w+);/gi, (m, e) => e[0] === '#' ? String.fromCodePoint(e[1] === 'x' ? parseInt(e.slice(2), 16) : +e.slice(1)) : ENT[e.toLowerCase()] ?? m)
-    .replace(/\((?:Redação dad|Incluíd|Incluid|Acrescid|Renumerad|Revogad|Vide|Vigência|Regulamento|Produção de efeito|Promulgação|Expressão)[^)]*\)/gi, '')
+    // drop amendment notes "(Redação dada pela Lei ...)" but keep a bare "(revogado)" that is the device's content
+    .replace(/\((?:Redação dad[oa]|Incluíd[oa]|Incluid[oa]|Acrescid[oa]|Renumerad[oa]|Revogad[oa]|Produção de efeito|Promulgação|Expressão)\s[^)]*\)/gi, '')
+    .replace(/\((?:Vide|Vigência|Regulamento)[^)]*\)/gi, '')
     .replace(/^\s*(Vigência|Regulamento|Vide [^\n]*|Mensagem de veto)\s*$/gim, '')
     .replace(/[ \t\u00a0]+/g, ' ');
   const arts = new Map();

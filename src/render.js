@@ -21,6 +21,11 @@ export const NICKS = {
   'lei-8112-1990': 'Estatuto dos Servidores Públicos Federais', 'lei-6015-1973': 'Lei de Registros Públicos',
   'lei-9099-1995': 'Lei dos Juizados Especiais', 'lei-12651-2012': 'Código Florestal', 'lei-1079-1950': 'Lei do Impeachment',
   'lei-15211-2025': 'Estatuto Digital da Criança e do Adolescente', 'lei-12587-2012': 'Política Nacional de Mobilidade Urbana',
+  'lei-8742-1993': 'Lei Orgânica da Assistência Social (LOAS)', 'lcp-214-2025': 'Lei do IBS e da CBS (Reforma Tributária)',
+  'lei-13675-2018': 'Lei do Sistema Único de Segurança Pública', 'lei-13756-2018': 'Lei do Fundo Nacional de Segurança Pública e das Loterias',
+  'lei-8906-1994': 'Estatuto da Advocacia e da OAB', 'lei-7713-1988': 'Lei do Imposto de Renda', 'lei-9250-1995': 'Lei do Imposto de Renda da Pessoa Física',
+  'lei-10098-2000': 'Lei de Acessibilidade', 'lei-7565-1986': 'Código Brasileiro de Aeronáutica', 
+  'lei-14457-2022': 'Programa Emprega + Mulheres', 'lei-11101-2005': 'Lei de Falências', 'lei-6404-1976': 'Lei das Sociedades Anônimas',
 };
 export const lawTitle = (l) => `${KIND[l.kind]} nº ${fmtNum(l.num)}/${l.year}`;
 export const lawName = (l) => l.nick ? `${l.nick} (${lawTitle(l)})` : lawTitle(l);

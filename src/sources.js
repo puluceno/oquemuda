@@ -45,7 +45,7 @@ export async function pdfText(url) {
   if (!r.ok) throw new Error(`PDF HTTP ${r.status}`);
   const f = join(tmpdir(), `oquemuda-${process.pid}.pdf`);
   writeFileSync(f, Buffer.from(await r.arrayBuffer()));
-  try { return execFileSync('pdftotext', ['-enc', 'UTF-8', f, '-'], { maxBuffer: 64 << 20 }).toString('utf8'); }
+  try { return execFileSync('pdftotext', ['-raw', '-enc', 'UTF-8', f, '-'], { maxBuffer: 64 << 20 }).toString('utf8'); }
   finally { rmSync(f, { force: true }); }
 }
 
