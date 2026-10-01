@@ -51,3 +51,5 @@ jobs:
           sleep 20
           curl -fsS "${{ steps.deploy.outputs.page_url }}" | grep -q 'O que muda'
           curl -fsS "${{ steps.deploy.outputs.page_url }}sobre.html" | grep -q 'Como funciona'
+      - run: node indexnow.js
+        continue-on-error: true

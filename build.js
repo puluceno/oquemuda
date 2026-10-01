@@ -50,12 +50,16 @@ if (process.env.REPARSE) for (const f of readdirSync('data/bills')) {
   if (!list.some(p => p.id === old.id)) list.push(old);
 }
 let added = 0, failed = 0;
+const newUrls = [];
 for (const p of list) {
   const f = `data/bills/${p.id}.json`;
   if (existsSync(f) && !process.env.REPARSE) continue;
   try {
     const rec = await processBill(p);
-    if (rec) { writeFileSync(f, JSON.stringify(rec)); added++; }
+    if (rec) {
+      writeFileSync(f, JSON.stringify(rec)); added++;
+      if (rec.changes.length) newUrls.push(`pl/${rec.id}.html`, ...rec.laws.map(l => `lei/${l.key}.html`));
+    }
   } catch (e) {
     failed++;
     console.error(`bill ${p.id} (${p.siglaTipo} ${p.numero}/${p.ano}): ${e.message}`);
@@ -85,5 +89,6 @@ writeFileSync('site/feed.xml', feed(bills.filter(b => b.changes.length), BASE));
 writeFileSync('site/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${BASE}sitemap.xml\n`);
 writeFileSync('site/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${['', 'sobre.html', ...bills.map(b => `pl/${b.id}.html`), ...Object.keys(laws).map(k => `lei/${k}.html`)].map(u => `<url><loc>${BASE}${u}</loc></url>`).join('')}</urlset>`);
 if (existsSync('static')) cpSync('static', 'site', { recursive: true });
+writeFileSync('.cache/new-urls.json', JSON.stringify(process.env.REPARSE ? [] : [...new Set(['', ...newUrls])].map(u => BASE + u)));
 console.log(`site: ${bills.length} bills, ${Object.keys(laws).length} laws`);
 if (failed > list.length / 2 && list.length > 4) process.exit(1);
