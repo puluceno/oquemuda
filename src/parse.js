@@ -16,7 +16,9 @@ export const norm = s => s
 export function cleanBill(raw) {
   const lines = raw.replace(/\f/g, '\n').split('\n')
     .map(l => l.replace(/\s*C[âa]mara dos Deputados\s*[|,–-]\s*Anexo.*$/i, ''))
-    .filter(l => !/^\s*(Apresenta..o:|PL n\.|PLP n\.|\*CD\d+\*|Para verificar as? assinaturas?|Assinado eletronicamente|CÂMARA DOS DEPUTADOS|Gabinete d[oa]|Deputad[oa] Federal|\d+\s*$)/i.test(l));
+    .filter(l => !/^\s*(Apresenta..o:|PL n\.|PLP n\.|\*CD\d+\*|Para verificar as? assinaturas?|Assinado eletronicamente|CÂMARA DOS DEPUTADOS|Gabinete d[oa]|Deputad[oa] Federal|\d+\s*$)/i.test(l))
+    // the rotated side stamp comes out one word per line on Linux poppler
+    .filter(l => !/^\s*(PLP?|n\.\d+\/\d{4}|\d{2}\/\d{2}\/\d{4}|\d{2}:\d{2}:\d{2}\.\d+|-|Mesa)\s*$/.test(l));
   const s = lines.join('\n');
   const a = s.search(/decreta\s*:/i);
   const b = s.search(/\n\s*JUSTIFICA[ÇC][ÃA]O/i);

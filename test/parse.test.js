@@ -75,3 +75,9 @@ test('Planalto candidates cover the folder layouts seen in the wild', () => {
   assert.ok(planaltoCandidates({ kind: 'del', num: '509', year: 1969 }).includes('decreto-lei/del0509.htm'));
   assert.ok(planaltoCandidates({ kind: 'lei', num: '10257', year: 2001 }).includes('leis/leis_2001/l10257.htm'));
 });
+
+test('Linux poppler side stamp (one word per line) does not break blocks', () => {
+  const b = parseBill(fx('6531-linux.txt').toString());
+  assert.deepEqual(b.blocks.map(x => `${x.law}:${x.art}`), ['lei-9605-1998:79-A', 'lei-9605-1998:79-B', 'lei-9605-1998:79-C']);
+  assert.ok(b.blocks.every(x => !/\bMesa\b|Apresenta/.test(x.text)));
+});
