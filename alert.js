@@ -65,6 +65,11 @@ export function confirmMail(row, api, names) {
     text: `Confirme seu lugar na lista de espera do plano Pro do O que muda:\n${link}\n\nSe não foi você, ignore este e-mail.`,
     html: shell(`<p>Confirme seu lugar na lista de espera do plano Pro do <b>O que muda</b>:</p><p><a href="${esc(link)}">Confirmar</a></p><p>Se não foi você, ignore este e-mail.</p>`),
   };
+  if (row.law === 'energia') return {
+    subject: 'Confirme: boletim Energia em dia', unsubscribe: `${api}/sair?t=${row.token}`,
+    text: `Confirme seu lugar na lista do boletim semanal Energia em dia:\n${link}\n\nNada será cobrado agora. Se não foi você, ignore este e-mail.`,
+    html: shell(`<p>Confirme seu lugar na lista do boletim semanal <b>Energia em dia</b>:</p><p><a href="${esc(link)}">Confirmar</a></p><p>Nada será cobrado agora. Se não foi você, ignore este e-mail.</p>`),
+  };
   const law = lawLabel(row.law, names);
   return {
     subject: `Confirme o alerta: ${law}`, unsubscribe: `${api}/sair?t=${row.token}`,
@@ -76,7 +81,7 @@ export function confirmMail(row, api, names) {
 /** One e-mail per subscriber with every new bill touching the laws they follow. */
 export function billMails(rows, bills, api) {
   const byEmail = new Map();
-  for (const r of rows) if (r.status === 'active' && r.law !== 'pro') {
+  for (const r of rows) if (r.status === 'active' && r.law !== 'pro' && r.law !== 'energia') {
     const e = byEmail.get(r.email) || { token: r.token, laws: new Set() };
     e.laws.add(r.law);
     byEmail.set(r.email, e);

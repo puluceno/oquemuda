@@ -57,8 +57,13 @@ test('queue needs the key; mailed flag sticks', async () => {
   await post(env, '/pro', { email: 'p@x.com' });
   const [r] = await queue(env);
   assert.equal(r.law, 'pro');
+  for (const n of [1, 2, 3]) await post(env, '/assinar', { email: 'p@x.com', lei: `lei-${n}-2000` });
+  await post(env, '/energia', { email: 'p@x.com' }); // waitlists do not use up the 3 free laws
+  const e = (await queue(env)).find(x => x.law === 'energia');
+  assert.ok(e);
+  assert.match(confirmMail(e, W, {}).subject, /Energia em dia/);
   await handle(new Request(W + '/fila', { method: 'POST', headers: { authorization: 'Bearer k' }, body: JSON.stringify({ mailed: [r.token] }) }), env);
-  assert.equal((await queue(env))[0].mailed, 1);
+  assert.equal((await queue(env)).find(x => x.token === r.token).mailed, 1);
 });
 
 test('worker pages escape nothing user-controlled (no reflection)', async () => {
