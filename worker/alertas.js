@@ -6,7 +6,9 @@ const SCHEMA = `CREATE TABLE IF NOT EXISTS subs (
 CREATE TABLE IF NOT EXISTS hits (ip TEXT NOT NULL, at INTEGER NOT NULL);`;
 const SITE = 'https://puluceno.github.io/oquemuda/';
 const FREE_LAWS = 3;
-const WAITLISTS = new Map([['/pro', 'pro'], ['/energia', 'energia']]);
+const WAITLISTS = new Map([['/pro', 'pro'], ['/energia', 'energia'], ['/tributos', 'tributos']]);
+const WAIT_SQL = [...WAITLISTS.values()].map(v => `'${v}'`).join(', ');
+const DIGEST = { energia: 'Energia em dia', tributos: 'Tributos em dia' };
 const LAW = /^(lei|lcp|del)-\d{1,6}-\d{4}$/;
 const EMAIL = /^[^\s@<>"']{1,64}@[^\s@<>"']{1,190}\.[a-z]{2,}$/i;
 const ready = new WeakSet();
@@ -44,7 +46,7 @@ export async function handle(req, env) {
     const law = wait || String(f.get('lei') || '');
     if (!EMAIL.test(email) || (!wait && !LAW.test(law))) return page('Dados inválidos', 'Confira o e-mail e tente de novo.', 400);
     if (await limited(db, ip, 10)) return page('Muitas tentativas', 'Tente de novo em uma hora.', 429);
-    const { n } = await db.prepare("SELECT count(*) n FROM subs WHERE email = ? AND law NOT IN ('pro', 'energia')").bind(email).first();
+    const { n } = await db.prepare(`SELECT count(*) n FROM subs WHERE email = ? AND law NOT IN (${WAIT_SQL})`).bind(email).first();
     if (!wait && n >= FREE_LAWS) {
       return page('Limite do plano gratuito', `O plano gratuito acompanha até ${FREE_LAWS} leis por e-mail. O plano Pro (leis ilimitadas) está chegando: <a href="${SITE}pro.html">entre na lista de espera</a>.`);
     }
@@ -52,8 +54,8 @@ export async function handle(req, env) {
       .bind(token(), email, law, 'pending', new Date().toISOString()).run();
     return page('Confira seu e-mail', law === 'pro'
       ? 'Você está na lista de espera do plano Pro. Enviaremos um e-mail para confirmar.'
-      : law === 'energia'
-      ? 'Você está na lista do boletim Energia em dia. Enviaremos um e-mail para confirmar.'
+      : DIGEST[law]
+      ? `Você está na lista do boletim ${DIGEST[law]}. Enviaremos um e-mail para confirmar.`
       : 'Enviamos um link de confirmação. Os alertas começam depois que você confirmar (veja também a pasta de spam).');
   }
 
