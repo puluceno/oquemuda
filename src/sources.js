@@ -9,7 +9,7 @@ const API = 'https://dadosabertos.camara.leg.br/api/v2';
 const CACHE = '.cache/laws';
 const WEEK = 7 * 864e5;
 
-async function get(url, accept = 'application/json', tries = 3) {
+async function get(url, accept = 'application/json', tries = 5) {
   for (let i = 1; ; i++) {
     try {
       const r = await fetch(url, { headers: { 'user-agent': UA, accept }, signal: AbortSignal.timeout(60_000) });
@@ -17,7 +17,7 @@ async function get(url, accept = 'application/json', tries = 3) {
       return r;
     } catch (e) {
       if (i >= tries) throw e;
-      await new Promise(res => setTimeout(res, 2000 * i));
+      await new Promise(res => setTimeout(res, 5000 * i));
     }
   }
 }
