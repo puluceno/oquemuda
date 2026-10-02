@@ -126,8 +126,8 @@ const billCard = (b, root, laws) => `<div class="card"><h3><a href="${root}pl/${
 <span class="tag">${b.changes.length} ${b.changes.length === 1 ? 'artigo' : 'artigos'}</span></div></div>`;
 
 export function indexPage(bills, laws, top) {
-  const body = `<h1>O que cada projeto de lei muda, palavra por palavra</h1>
-<p>Todo projeto que altera uma lei federal, comparado automaticamente com o texto em vigor. <del>Riscado</del> sai, <ins>verde</ins> entra.</p>
+  const body = `<h1>Veja o que os projetos em votação querem mudar na lei — antes de virar lei</h1>
+<p>O site do Planalto mostra o que já mudou. Aqui você vê o que <b>pode</b> mudar: cada projeto de lei apresentado na Câmara, comparado palavra por palavra com o texto em vigor. <del>Riscado</del> sai, <ins>verde</ins> entra, se o projeto for aprovado.</p>
 <p class="mut">${fmtNum(bills.length)} projetos comparados · atualizado em ${esc(date(new Date().toISOString()))}</p>
 <h2>Leis com mais propostas de mudança</h2><table>${top.map(([k, n]) => `<tr><td><a href="lei/${k}.html">${esc(lawName(laws[k]))}</a></td><td class="n">${n}</td></tr>`).join('')}</table>
 <p class="alert"><b>Alertas por e-mail</b>Abra a página de uma lei e receba um e-mail no dia em que um novo projeto tentar mudá-la. Grátis para até 3 leis. Para equipes jurídicas e de compliance: <a href="pro.html">plano Pro</a>.</p>
