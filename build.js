@@ -93,7 +93,7 @@ writeFileSync('site/privacidade.html', privacyPage());
 writeFileSync('site/leis.json', JSON.stringify(Object.fromEntries(Object.entries(laws).map(([k, l]) => [k, lawName(l)]))));
 writeFileSync('site/feed.xml', feed(bills.filter(b => b.changes.length), BASE));
 writeFileSync('site/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${BASE}sitemap.xml\n`);
-writeFileSync('site/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${['', 'sobre.html', ...bills.map(b => `pl/${b.id}.html`), ...Object.keys(laws).map(k => `lei/${k}.html`)].map(u => `<url><loc>${BASE}${u}</loc></url>`).join('')}</urlset>`);
+writeFileSync('site/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${['', 'sobre.html', 'tributos.html', 'energia.html', ...bills.map(b => `pl/${b.id}.html`), ...Object.keys(laws).map(k => `lei/${k}.html`)].map(u => `<url><loc>${BASE}${u}</loc></url>`).join('')}</urlset>`);
 if (existsSync('static')) cpSync('static', 'site', { recursive: true });
 writeFileSync('.cache/new-urls.json', JSON.stringify(process.env.REPARSE ? [] : [...new Set(['', ...newUrls])].map(u => BASE + u)));
 writeFileSync('.cache/new-bills.json', JSON.stringify(process.env.REPARSE ? [] : newBills.map(b => ({

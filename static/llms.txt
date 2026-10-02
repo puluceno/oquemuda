@@ -1,0 +1,21 @@
+# O que muda
+
+> Cada projeto de lei (PL e PLP) apresentado na Câmara dos Deputados, comparado palavra por palavra com o texto da lei federal em vigor. Atualizado duas vezes por dia a partir dos dados abertos da Câmara e dos textos do Planalto. Em português.
+
+- Mostra o que um projeto quer mudar antes de ser votado (não o que já mudou).
+- Cada página de projeto traz o texto atual, o texto proposto e as diferenças destacadas, com link para o texto oficial e a tramitação.
+- Comparação automática: pode conter erros; confira sempre o texto oficial.
+
+## Páginas principais
+
+- [Projetos mais recentes](https://puluceno.github.io/oquemuda/): lista dos projetos comparados e das leis com mais propostas de mudança
+- [Como funciona](https://puluceno.github.io/oquemuda/sobre.html): fontes e método de comparação
+- [Simples Nacional 2027 e reforma tributária](https://puluceno.github.io/oquemuda/tributos.html): prazos de outubro/2026 e projetos em votação
+- [Regras de energia](https://puluceno.github.io/oquemuda/energia.html): decisões da ANEEL e projetos de lei (setembro/outubro 2026)
+- [Mapa do site](https://puluceno.github.io/oquemuda/sitemap.xml): todas as páginas de projetos (pl/ID.html) e de leis (lei/ID.html)
+- [Feed](https://puluceno.github.io/oquemuda/feed.xml): novos projetos comparados
+
+## Dados
+
+- [Lista de leis acompanhadas](https://puluceno.github.io/oquemuda/leis.json)
+- [Código-fonte](https://github.com/puluceno/oquemuda)
