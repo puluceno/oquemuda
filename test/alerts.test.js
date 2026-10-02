@@ -68,6 +68,13 @@ test('queue needs the key; mailed flag sticks', async () => {
   assert.equal((await queue(env)).find(x => x.token === r.token).mailed, 1);
 });
 
+test('view counter: counts only known pages, per day, no personal data', async () => {
+  const env = { DB: d1(), ALERTS_KEY: 'k' };
+  for (const p of ['energia', 'energia', 'tributos', 'evil', '']) assert.equal((await get(env, `/v?p=${p}`)).status, 204);
+  const rows = (await env.DB.prepare('SELECT page, n FROM views ORDER BY page').all()).results;
+  assert.deepEqual(rows.map(r => [r.page, r.n]), [['energia', 2], ['tributos', 1]]);
+});
+
 test('worker pages escape nothing user-controlled (no reflection)', async () => {
   const env = { DB: d1(), ALERTS_KEY: 'k' };
   const html = await (await get(env, '/confirmar?t=<script>alert(1)</script>')).text();

@@ -114,7 +114,9 @@ async function main(mode) {
   const names = existsSync('site/leis.json') ? JSON.parse(readFileSync('site/leis.json', 'utf8'))
     : await fetch(`${SITE}leis.json`).then(x => x.ok ? x.json() : {}).catch(() => ({}));
   let mails = [];
-  if (mode === 'confirm') mails = rows.filter(x => x.status === 'pending' && !x.mailed).map(x => ({ to: x.email, token: x.token, ...confirmMail(x, api, names) }));
+  if (mode === 'confirm') mails = rows.filter(x => x.status === 'pending' && !x.mailed).map(x => ({ to: x.email, token: x.token, law: x.law, ...confirmMail(x, api, names) }));
+  const joined = mails.filter(m => m.law === 'pro' || DIGEST[m.law]).map(m => `${m.law}: ${m.to}`);
+  if (joined.length) mails.push({ to: user, subject: `Nova inscrição na lista (${joined.length})`, text: joined.join('\n'), html: `<pre>${esc(joined.join('\n'))}</pre>` });
   if (mode === 'bills' && existsSync('.cache/new-bills.json')) mails = billMails(rows, JSON.parse(readFileSync('.cache/new-bills.json', 'utf8')), api);
   if (!mails.length) { console.log(`alert ${mode}: nothing to send`); return; }
   const s = await smtp({ host: 'smtp.gmail.com', port: 465, user, pass });

@@ -3,7 +3,9 @@
 const SCHEMA = `CREATE TABLE IF NOT EXISTS subs (
   token TEXT PRIMARY KEY, email TEXT NOT NULL, law TEXT NOT NULL, status TEXT NOT NULL,
   mailed INTEGER NOT NULL DEFAULT 0, created TEXT NOT NULL, UNIQUE(email, law));
-CREATE TABLE IF NOT EXISTS hits (ip TEXT NOT NULL, at INTEGER NOT NULL);`;
+CREATE TABLE IF NOT EXISTS hits (ip TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS views (page TEXT NOT NULL, day TEXT NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (page, day));`;
+const COUNTED = new Set(['home', 'energia', 'tributos']);
 const SITE = 'https://puluceno.github.io/oquemuda/';
 const FREE_LAWS = 3;
 const WAITLISTS = new Map([['/pro', 'pro'], ['/energia', 'energia'], ['/tributos', 'tributos']]);
@@ -37,6 +39,13 @@ export async function handle(req, env) {
   if (!ready.has(db)) { await db.exec(SCHEMA.replace(/\n/g, ' ')); ready.add(db); }
   const url = new URL(req.url);
   const ip = req.headers.get('cf-connecting-ip') || 'local';
+
+  if (req.method === 'GET' && url.pathname === '/v') {
+    const p = url.searchParams.get('p');
+    if (COUNTED.has(p)) await db.prepare('INSERT INTO views (page, day, n) VALUES (?, ?, 1) ON CONFLICT (page, day) DO UPDATE SET n = n + 1')
+      .bind(p, new Date().toISOString().slice(0, 10)).run();
+    return new Response(null, { status: 204, headers: { 'cache-control': 'no-store' } });
+  }
 
   if (req.method === 'POST' && (url.pathname === '/assinar' || WAITLISTS.has(url.pathname))) {
     const f = await req.formData();

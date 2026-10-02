@@ -131,7 +131,8 @@ export function indexPage(bills, laws, top) {
 <p class="mut">${fmtNum(bills.length)} projetos comparados · atualizado em ${esc(date(new Date().toISOString()))}</p>
 <h2>Leis com mais propostas de mudança</h2><table>${top.map(([k, n]) => `<tr><td><a href="lei/${k}.html">${esc(lawName(laws[k]))}</a></td><td class="n">${n}</td></tr>`).join('')}</table>
 <p class="alert"><b>Alertas por e-mail</b>Abra a página de uma lei e receba um e-mail no dia em que um novo projeto tentar mudá-la. Grátis para até 3 leis. Para equipes jurídicas e de compliance: <a href="pro.html">plano Pro</a>.</p>
-<h2>Projetos mais recentes</h2>${bills.slice(0, 150).map(b => billCard(b, '', laws)).join('')}`;
+<h2>Projetos mais recentes</h2>${bills.slice(0, 150).map(b => billCard(b, '', laws)).join('')}
+<img src="${ALERTS}/v?p=home" alt="" width="1" height="1" style="position:absolute;opacity:0">`;
   return page({ title: 'O que muda: cada projeto de lei comparado com a lei atual', desc: 'Veja exatamente o que cada projeto de lei apresentado na Câmara muda no texto da lei em vigor.', root: '', body });
 }
 
